@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -9,7 +11,7 @@ import {
   GithubAuthProvider,
 } from "firebase/auth"
 import { useAuthState } from "react-firebase-hooks/auth"
-import { auth } from "./firebase"
+import { auth, isFirebaseConfigured } from "./firebase"
 
 const LoginSignup = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -28,6 +30,11 @@ const LoginSignup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+
+    if (!isFirebaseConfigured()) {
+      setError("Firebase is not properly configured. Please check your environment variables.")
+      return
+    }
 
     if (!email || !password || (!isLogin && !name)) {
       setError("Please fill in all fields.")
@@ -59,6 +66,11 @@ const LoginSignup = () => {
 
   const handleSocialLogin = async (provider) => {
     try {
+      if (!isFirebaseConfigured()) {
+        setError("Firebase is not properly configured. Please check your environment variables.")
+        return
+      }
+
       await signInWithPopup(auth, provider)
     } catch (error) {
       setError(error.message)
